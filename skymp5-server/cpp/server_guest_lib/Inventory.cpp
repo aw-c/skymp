@@ -2,6 +2,8 @@
 #include "archives/JsonInputArchive.h"
 #include "archives/JsonOutputArchive.h"
 #include "archives/SimdJsonInputArchive.h"
+#include "archives/NapiOutputArchive.h"
+#include <napi.h>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <tuple>
@@ -167,6 +169,14 @@ uint32_t Inventory::GetTotalItemCount() const
 bool Inventory::IsEmpty() const
 {
   return entries.empty();
+}
+
+Napi::Value Inventory::ToNapiObject() const
+{
+  auto env = jsEngine;
+  NapiOutputArchive ar();
+  const_cast<Inventory*>(this)->Serialize(ar);
+  return ar.extract_output();
 }
 
 nlohmann::json Inventory::ToJson() const
